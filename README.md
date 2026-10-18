@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="publish/gallery/01-sunrise-south-complementary.jpg" width="720" alt="Sunrise in the south with Complementary Reimagined">
+  <img src="publish/gallery/config-screen.png" width="720" alt="Sun Orientation configuration screen">
 </p>
 
 ## Features

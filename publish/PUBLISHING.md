@@ -7,7 +7,7 @@ action and cannot be fully undone once the project is approved and indexed.
 | --- | --- |
 | `../release/sun-orientation-1.0.0.jar` | the file to upload (same jar for both platforms) |
 | `../CHANGELOG.md` | changelog of the version (section 1.0.0) |
-| `gallery/` | screenshots shared by both platforms |
+| `gallery/` | screenshot shared by both platforms |
 | `modrinth/description.md`, `modrinth/icon-512.png` | Modrinth page and icon |
 | `curseforge/description.md`, `curseforge/icon-512.png` | CurseForge page and avatar |
 
@@ -89,8 +89,4 @@ CurseForge also reviews new projects and files before they are public.
 
 | File | Title | Description |
 | --- | --- | --- |
-| `01-sunrise-south-complementary.jpg` | Sunrise in the south | Complementary Reimagined + Iris. Use it as the **featured** image. |
-| `02-morning-complementary.jpg` | Morning light | The sun stays in the south all morning; shadows fall north. |
-| `03-config-screen.png` | Compass screen | Pick any direction; the sky updates live behind the menu. |
-| `04-sunrise-south-vanilla.jpg` | Without shaders | The vanilla sun rises in the south too. |
-| `05-moon-south-vanilla.png` | Moon | The moon follows the same path as the sun. |
+| `config-screen.png` | Compass screen | Pick any sunrise direction; the sky updates live behind the menu. Use it as the **featured** image. |
