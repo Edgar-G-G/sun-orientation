@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "sun_orientation_gametest",
+  "version": "1.0.0",
+  "name": "Sun Orientation - prueba en juego",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": ["es.sunorientation.gametest.SunOrientationClientGameTest"]
+  },
+  "depends": {
+    "sun_orientation": "*",
+    "fabric-client-gametest-api-v1": "*"
+  }
+}

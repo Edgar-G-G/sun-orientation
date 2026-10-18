@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "sun_orientation",
+  "version": "${version}",
+  "name": "Sun Orientation",
+  "description": "Choose where the sun rises: south, north, west or any angle. Rotates the vanilla sky, sunrise glow and fog and, with Iris, the sun and moon positions, shadows and the sun direction of shader packs like Complementary. Client-side only.",
+  "authors": ["Edgar_G."],
+  "contact": ${contact},
+  "license": "MIT",
+  "icon": "assets/sun_orientation/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "modmenu": ["es.sunorientation.config.ModMenuIntegration"]
+  },
+  "mixins": [
+    {"config": "sun_orientation.mixins.json", "environment": "client"}
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25"
+  },
+  "suggests": {
+    "iris": ">=1.11.7",
+    "modmenu": "*"
+  },
+  "breaks": {
+    "sur_norte": "*"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "es.sunorientation.mixin",
+  "plugin": "es.sunorientation.SunOrientationMixinPlugin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "SkyRendererMixin",
+    "AtmosphericFogEnvironmentMixin",
+    "iris.IrisCelestialUniformsMixin",
+    "iris.IrisShadowMatricesMixin",
+    "iris.IrisIncludeGraphMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

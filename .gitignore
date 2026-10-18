@@ -1,0 +1,12 @@
+.gradle/
+build/
+run/
+out/
+.idea/
+*.iml
+
+# Local files that are not versioned
+testenv/
+release/
+SIGUIENTE_PASO_CLAUDE_CODE.txt
+logs/
