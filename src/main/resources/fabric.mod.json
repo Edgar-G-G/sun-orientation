@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "Sun Orientation",
   "description": "Choose where the sun rises: south, north, west or any angle. Rotates the vanilla sky, sunrise glow and fog and, with Iris, the sun and moon positions, shadows and the sun direction of shader packs like Complementary. Client-side only.",
-  "authors": ["Edgar_G."],
+  "authors": ["Edgar_G"],
   "contact": ${contact},
   "license": "MIT",
   "icon": "assets/sun_orientation/icon.png",
