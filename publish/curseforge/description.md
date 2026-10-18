@@ -1,5 +1,6 @@
 **Choose where the sun rises.** South, north, west or any angle — the sky, the shadows and the lighting of your shader pack follow it.
-n![Sun Orientation configuration screen: pick the sunrise direction on a compass](https://raw.githubusercontent.com/Edgar-G-G/sun-orientation/main/publish/gallery/config-screen.png)
+
+![Sun Orientation configuration screen: pick the sunrise direction on a compass](https://raw.githubusercontent.com/Edgar-G-G/sun-orientation/main/publish/gallery/config-screen.png)
 
 In vanilla Minecraft the sun always rises in the east and sets in the west. Sun Orientation lets you move that path: have the sun rise in the south and set in the north, rise in the north like in old Beta versions, or pick any compass angle you like. It always sets on the opposite side and crosses the zenith at noon.
 
