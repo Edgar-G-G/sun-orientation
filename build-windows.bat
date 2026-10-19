@@ -14,5 +14,5 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-echo Done: the .jar is in the release folder.
+echo Done: one .jar per Minecraft version and loader is in the release folder.
 pause

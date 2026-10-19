@@ -55,32 +55,68 @@ angle changes. It can be disabled in the screen or with `-Dsunorientation.shader
 - **Client only** (`environment: client`). No server code, no change to time or world.
 - **Without Iris**: `SunOrientationMixinPlugin` skips the Iris mixins (they are also `@Pseudo`), so no Iris class is
   ever loaded. Iris is accessed only through reflection (`IrisCompat`).
-- **Iris version**: the plugin logs a warning outside `>=1.11.7 <1.12`, the range whose bytecode was reviewed.
+- **Iris version**: the plugin logs a warning outside the range whose bytecode was reviewed: `[1.11.7, 1.12)` on
+  26.3, `[1.11.4, 1.12)` on 26.2 and 26.1.2.
 - **Injection failures** never crash the game (`defaultRequire = 0`). Every hook logs
   `[SunOrientation] hook active: …` the first time it runs, so a missing line shows which part is not rotating.
-- **Mod Menu** is `compileOnly`; the entrypoint is only loaded when Mod Menu is present.
+- **Mod Menu** (Fabric) is `compileOnly`; the entrypoint is only loaded when Mod Menu is present. On NeoForge the
+  screen is registered as the mod's `IConfigScreenFactory` (mods list → Config).
 - **Nuit**: without custom skyboxes Nuit calls the vanilla sky renderer, so everything rotates. Custom Nuit skyboxes
   draw their own sun/moon (`DecorationBox`) and are not rotated.
 - `breaks: sur_norte` prevents loading together with the 0.1.0-alpha test build (different mod id).
 
+## Minecraft versions and loaders
+
+One source tree, built with [Stonecutter](https://stonecutter.kikugie.dev/) 0.9: `settings.gradle.kts` declares one
+node per Minecraft version and loader (`versions/26.3-fabric`, `versions/26.3-neoforge`, `26.2-…`, `26.1.2-…`), each
+built by `build.fabric.gradle.kts` (Fabric Loom) or `build.neoforge.gradle.kts` (ModDevGradle). Versions and ranges
+are in `stonecutter.properties.toml`. `src/` holds the code of the active node (`stonecutter.gradle.kts`,
+`26.3-fabric`); the parts that differ are `//? if …` comments that Stonecutter switches per node.
+
+Minecraft 26.x is not obfuscated, so the mixins use the same names on every loader and need no refmap.
+
+| Differs by | Where | Why |
+| --- | --- | --- |
+| Loader | `platform.Platform` | config folder, installed mods and their versions (Fabric Loader / FML) |
+| Loader | `SunOrientationNeoForge`, `ModMenuIntegration`, `fabric.mod.json` / `META-INF/neoforge.mods.toml` | entry point and metadata |
+| Version | `SkyRendererMixin`, `IrisShadowMatricesMixin` | 26.3: `PoseStack.rotateDegrees(Axis, float)`; 26.1/26.2: `PoseStack.mulPose(Axis.rotationDegrees(float))`; the sunrise method of 26.1/26.2 has no render pass and an `int` color |
+| Version | `SunOrientationScreen`, in-game tests (`GameTestCompat`) | 26.2 moved the current screen, overlay and HUD from `Minecraft` to `Gui` |
+| Version | `SunOrientationMixinPlugin` | reviewed Iris range |
+
+Bytecode reviewed for the hooked methods: `SkyRenderer.renderSunMoonAndStars` / `renderSunriseAndSunset` and
+`AtmosphericFogEnvironment.getBaseColor` in 26.1, 26.1.2, 26.2 and 26.3 (same first rotations: `Ry(-90)` and `Rx(90)`;
+one `Vector3fc.dot(FFF)` call); Iris `CelestialUniforms`, `ShadowMatrices.createBaselineModelViewMatrix` and
+`IncludeGraph.readFile` in Iris 1.11.4 (26.1.2, 26.2) and 1.11.7 (26.3), Fabric and NeoForge builds (identical per
+version; between 26.1.2 and 26.2 only a renamed getter differs).
+
+**Quilt** runs the Fabric jar (Quilt Loader 0.31 provides `fabricloader` 0.19.5). **Forge** is not supported: there is
+no Iris/Oculus for Minecraft 26.x, which removes most of what the mod does.
+
 ## Verification
 
-**Unit tests** (`./gradlew test`, 35 cases) use the real `PoseStack`/`Axis` classes and JOML:
+**Unit tests** (`./gradlew test`, 35 cases, run on every node) use the real `PoseStack`/`Axis` classes and JOML:
 
 - `GeometryTest` — default orientation (south): sky, sunrise glow, fog, Iris light = vanilla sky, shadow camera
   looking from the light for `sunPathRotation` 0, -40 and 25, and the inverse-sign proof.
 - `OrientationsTest` — 12 bearings (including 30°, 45°, 200°, 333°, 359°): every part above plus the GLSL `mat3`.
 - `ShaderSunPatchTest` — the exact Complementary lines, and that other forms are left untouched.
 
-**In-game tests** (Fabric client gametest, `src/gametest`, not shipped in the jar):
+**In-game tests** (`src/gametest`, not shipped in the jar): the Fabric client gametest on Fabric nodes, and
+`NeoForgeGameTest` on NeoForge nodes (NeoForge has no client gametest: a development-only mod creates the vanilla flat
+test world and runs the same checks, shared in `GameTestReport`). `-Psunorientation.quilt` runs the Fabric test on
+Quilt Loader instead.
 
 ```bash
 ./gradlew :26.3-fabric:runClientGameTest -Psunorientation.variant=iris
+./gradlew :26.3-neoforge:runClientGameTest -Psunorientation.variant=iris
+./gradlew :26.3-fabric:runClientGameTest -Psunorientation.variant=iris -Psunorientation.quilt
 ```
 
 Variants: `vanilla`, `iris`, `nuit`, `iris-nuit`, plus `gallery` / `gallery-vanilla` for the mod page screenshots.
-Third-party jars are read from `../_shared/testenv/` (`mods-iris/`, `mods-nuit/`, `mods-extra/`, `shaderpacks/`),
-or another folder with `-Ptestenv_dir=…`. The test creates a flat world, sets bearings 180°, 0°, 270° and 45°, and at
+Third-party jars are read from `../_shared/testenv/<node>/` (e.g. `26.2-neoforge/`), falling back to
+`../_shared/testenv/` itself (`mods-iris/`, `mods-nuit/`, `mods-extra/`, `shaderpacks/`), or another folder with
+`-Ptestenv_dir=…`. NeoForge validates every draw strictly in development only and Iris 1.11.7 fails that check, so the
+NeoForge test run sets `-Dneoforge.disableBlaze3DValidation=true` (a normal game never validates). The test creates a flat world, sets bearings 180°, 0°, 270° and 45°, and at
 several times of day calls the real Iris code through reflection to check:
 
 - `shadowLightPosition` in world space points at the configured bearing at sunrise and the opposite one at sunset;
@@ -88,11 +124,24 @@ several times of day calls the real Iris code through reflection to check:
 - `ShadowMatrices.createBaselineModelViewMatrix` maps the light to (0, 0, 1).
 
 It also clicks through the configuration screen (N preset, Cancel, West + Done saves 270°), checks the Mod Menu
-entrypoint, switches the game to Spanish and takes screenshots. The report is written to
-`build/run/clientGameTest/sunorientation-results.txt`.
+entrypoint (Fabric) or the mods-list screen factory (NeoForge), switches the game to Spanish and takes screenshots. The report is written to
+`versions/<node>/build/run/clientGameTest/sunorientation-results.txt`.
 
-Last results (1.0.0, Minecraft 26.3, Fabric Loader 0.19.5, Iris 1.11.7, Sodium 0.9.2, Complementary r5.9.3 with
-default settings): all variants pass; 58 numeric checks with Iris. Example screenshots are in
+Last results (Complementary r5.9.3 with default settings; `iris` = 6 hooks and 58 checks):
+
+| Node | Loader | Iris / Sodium | vanilla | iris |
+| --- | --- | --- | --- | --- |
+| 26.3-fabric | Fabric Loader 0.19.5 | 1.11.7 / 0.9.2 | OK | OK |
+| 26.3-fabric | Quilt Loader 0.31.0-beta.4 | 1.11.7 / 0.9.2 | OK | OK |
+| 26.3-neoforge | NeoForge 26.3.0.94 | 1.11.7 / 0.9.3-beta.1 | OK | OK |
+| 26.2-fabric | Fabric Loader 0.19.5 | 1.11.4 / 0.9.2 | OK | not run (1) |
+| 26.2-neoforge | NeoForge 26.2.0.93 | 1.11.4 / 0.9.2 | OK | not run (1) |
+| 26.1.2-fabric | Fabric Loader 0.19.5 | 1.11.4 / 0.9.2 | OK | OK |
+| 26.1.2-neoforge | NeoForge 26.1.2.122 | 1.11.4 / 0.9.2 | OK | OK |
+
+(1) Iris 1.11.4 for 26.2 stops at startup in the test environment on both loaders, before Sun Orientation runs
+(`MixinLevelRenderer`: neither variant of its `render` → `addMainPass` injection group matches). Sodium 0.9.2 for NeoForge
+26.3 also fails with NeoForge 26.3.0.94, hence 0.9.3-beta.1 there. Example screenshots are in
 [`screenshots/`](screenshots/) (from the 0.1 test build, south orientation).
 
 ## Known limitations
