@@ -37,14 +37,9 @@ tasks.test {
     }
 }
 
-// ---------------------------------------------------------------------------
-// In-game test (Fabric client gametest). Development only: none of this goes into the .jar.
+// In-game test (Fabric client gametest), development only:
 //   gradlew :26.3-fabric:runClientGameTest -Psunorientation.variant=vanilla|iris|nuit|iris-nuit|gallery|gallery-vanilla
-// Third-party jars are read from ../_shared/testenv/ (or -Ptestenv_dir=...), not versioned:
-//   testenv/mods-iris/    Iris + Sodium        testenv/mods-nuit/   Nuit
-//   testenv/mods-extra/   mods that are always loaded (e.g. Mod Menu)
-//   testenv/shaderpacks/  shader pack enabled with Iris (the first one found)
-// ---------------------------------------------------------------------------
+// Test jars and the shader pack come from _shared/testenv (see gradle/gametest-env.gradle.kts).
 fabricApi {
     configureTests {
         createSourceSet = true
@@ -60,44 +55,12 @@ dependencies {
     "gametestImplementation"("net.fabricmc.fabric-api:fabric-api:${sc.properties.get<String>("deps.fabric_api")}")
 }
 
-val gameTestRunDir = file("build/run/clientGameTest")
-// Test jars and packs shared between mods (not versioned): ../_shared/testenv by default.
-val testEnv = rootProject.file(providers.gradleProperty("testenv_dir").orElse("../_shared/testenv").get())
-val gameTestVariant = providers.gradleProperty("sunorientation.variant").orElse("vanilla")
-
-tasks.register("prepareGameTest") {
-    val variant = gameTestVariant.get()
-    val withIris = variant.contains("iris") || variant == "gallery"
-    val withNuit = variant.contains("nuit")
-    inputs.property("variant", variant)
-    outputs.upToDateWhen { false }
-    doLast {
-        project.delete(gameTestRunDir)
-        project.copy {
-            from(File(testEnv, "mods-iris")) { include(if (withIris) "*.jar" else "__none__") }
-            from(File(testEnv, "mods-nuit")) { include(if (withNuit) "*.jar" else "__none__") }
-            from(File(testEnv, "mods-extra")) { include("*.jar") }
-            into(File(gameTestRunDir, "mods"))
-        }
-        if (withIris) {
-            val packs = File(testEnv, "shaderpacks").listFiles()?.filter { it.name.endsWith(".zip") }.orEmpty()
-            if (packs.isEmpty()) {
-                throw GradleException("Missing a shader pack in testenv/shaderpacks")
-            }
-            project.copy { from(packs[0]); into(File(gameTestRunDir, "shaderpacks")) }
-            val cfg = File(gameTestRunDir, "config/iris.properties")
-            cfg.parentFile.mkdirs()
-            cfg.writeText("enableShaders=true\nshaderPack=${packs[0].name}\ndisableUpdateMessage=true\n")
-        }
-        logger.lifecycle("In-game test, variant '$variant': " +
-            (File(gameTestRunDir, "mods").list()?.joinToString(", ") ?: "no extra mods"))
-    }
+tasks.named<ProcessResources>("processGametestResources") {
+    exclude("META-INF/neoforge.mods.toml")
 }
 
-tasks.matching { it.name == "runClientGameTest" }.configureEach {
-    dependsOn("prepareGameTest")
-    (this as JavaExec).jvmArgs("-Dmixin.debug.countInjections=true", "-Dsunorientation.variant=${gameTestVariant.get()}")
-}
+extra["gameTestRunDir"] = file("build/run/clientGameTest")
+apply(from = rootProject.file("gradle/gametest-env.gradle.kts"))
 
 tasks.processResources {
     val repo = sc.properties.get<String>("mod.github_repo")

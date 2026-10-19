@@ -1,0 +1,38 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+issueTrackerURL = "${issues}"
+
+[[mods]]
+modId = "sun_orientation"
+version = "${version}"
+displayName = "Sun Orientation"
+authors = "Edgar_G"
+description = "Choose where the sun rises: south, north, west or any angle. Rotates the vanilla sky, sunrise glow and fog and, with Iris, the sun and moon positions, shadows and the sun direction of shader packs like Complementary. Client-side only."
+displayURL = "https://modrinth.com/mod/sun-orientation"
+logoFile = "assets/sun_orientation/icon.png"
+iconFile = "assets/sun_orientation/icon.png"
+
+[[mixins]]
+config = "sun_orientation.mixins.json"
+
+[[dependencies.sun_orientation]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft}"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.sun_orientation]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neoforge}"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.sun_orientation]]
+modId = "iris"
+type = "optional"
+versionRange = "${iris}"
+ordering = "NONE"
+side = "CLIENT"

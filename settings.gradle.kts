@@ -8,6 +8,7 @@ pluginManagement {
     }
     plugins {
         id("net.fabricmc.fabric-loom") version "1.18-SNAPSHOT"
+        id("net.neoforged.moddev") version "2.0.148"
     }
 }
 
@@ -24,7 +25,7 @@ stonecutter {
             for (loader in loaders) version("$version-$loader", version).buildscript("build.$loader.gradle.kts")
         }
 
-        match("26.3", "fabric")
+        match("26.3", "fabric", "neoforge")
         vcsVersion = "26.3-fabric"
     }
 }

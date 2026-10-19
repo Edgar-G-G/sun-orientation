@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import es.sunorientation.SkyRotation;
 import es.sunorientation.SunOrientation;
-import net.fabricmc.loader.api.FabricLoader;
+import es.sunorientation.platform.Platform;
 
 /**
  * Mod configuration, stored in {@code config/sun_orientation.json}:
@@ -64,7 +64,7 @@ public final class SunOrientationConfig {
     }
 
     public static Path path() {
-        return FabricLoader.getInstance().getConfigDir().resolve(SunOrientation.MOD_ID + ".json");
+        return Platform.configDir().resolve(SunOrientation.MOD_ID + ".json");
     }
 
     public static synchronized void load() {

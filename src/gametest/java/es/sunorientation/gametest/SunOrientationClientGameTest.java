@@ -1,14 +1,9 @@
 package es.sunorientation.gametest;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
+//? if fabric {
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import es.sunorientation.IrisCompat;
 import es.sunorientation.SunOrientation;
 import es.sunorientation.config.SunOrientationConfig;
@@ -29,10 +24,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 /**
  * In-game test (development only). Variants ({@code -Psunorientation.variant=...}):
@@ -43,14 +34,11 @@ import org.joml.Vector4f;
  *       run; it also tests the configuration screen (buttons, Cancel, Done) and the Spanish translation;</li>
  *   <li>{@code gallery}, {@code gallery-vanilla}: normal world and 1920x1080 screenshots for the mod page.</li>
  * </ul>
- * The report is written to {@code sunorientation-results.txt}.
+ * The checks and the report ({@code sunorientation-results.txt}) are in {@link GameTestReport}, shared with
+ * the NeoForge test.
  */
 public class SunOrientationClientGameTest implements FabricClientGameTest {
-    private static final float EPS = 0.02F;
-    private static final int[] BEARINGS = {180, 0, 270, 45};
-
-    private final List<String> report = new ArrayList<>();
-    private final List<String> failures = new ArrayList<>();
+    private final GameTestReport report = new GameTestReport();
 
     @Override
     public void runTest(ClientGameTestContext context) {
@@ -67,10 +55,10 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
         } finally {
             SunOrientationConfig.set(SunOrientationConfig.DEFAULT_SUNRISE_BEARING, true);
             SunOrientationConfig.save();
-            writeReport();
+            report.write();
         }
-        if (!failures.isEmpty()) {
-            throw new AssertionError("SunOrientation: " + failures.size() + " failed check(s): " + failures);
+        if (!report.failures().isEmpty()) {
+            throw new AssertionError("SunOrientation: " + report.failures().size() + " failed check(s): " + report.failures());
         }
     }
 
@@ -84,14 +72,13 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
             world.getServer().runCommand("execute as @p at @p run fill ~5 ~ ~-5 ~5 ~10 ~-5 minecraft:stone");
             context.waitTicks(iris ? 400 : 60);
 
-            for (int bearing : BEARINGS) {
+            for (int bearing : GameTestReport.BEARINGS) {
                 setBearing(context, bearing, iris);
-                for (int time : new int[] {0, 6000, 12000, 14000}) {
+                for (int time : GameTestReport.TIMES) {
                     world.getServer().runCommand("time set " + time);
                     context.waitTicks(20);
                     if (iris) {
-                        int expected = time == 6000 ? -1 : time == 12000 ? bearing + 180 : bearing;
-                        context.runOnClient(mc -> checkIris(bearing, time, expected));
+                        context.runOnClient(mc -> report.checkIris(bearing, time));
                     }
                 }
                 // Screenshot facing the configured sunrise (Minecraft yaw = bearing - 180).
@@ -103,16 +90,7 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
                 context.takeScreenshot(variant + "-bearing" + bearing + "-sunset");
             }
 
-            Set<String> hooks = SunOrientation.activeHooks();
-            log("active hooks: " + hooks);
-            expectHook(hooks, SunOrientation.Hooks.CELESTIAL, !iris);
-            expectHook(hooks, SunOrientation.Hooks.SUNRISE_GLOW, !iris);
-            expectHook(hooks, SunOrientation.Hooks.FOG, !iris);
-            if (iris) {
-                expectHook(hooks, SunOrientation.Hooks.IRIS_UNIFORMS, true);
-                expectHook(hooks, SunOrientation.Hooks.IRIS_SHADOWS, true);
-                expectHook(hooks, SunOrientation.Hooks.SHADER_PATCH, true);
-            }
+            report.checkHooks(iris);
 
             checkConfigScreen(context, variant);
             checkModMenu();
@@ -128,46 +106,6 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
         });
         context.waitTicks(iris ? 200 : 10);
         log("sunrise bearing = " + bearing + "°");
-    }
-
-    /** Calls the real Iris code (with this mod's mixins applied) through reflection. */
-    private void checkIris(int bearing, int time, int expectedBearing) {
-        try {
-            Class<?> cu = Class.forName("net.irisshaders.iris.uniforms.CelestialUniforms");
-            Object uniforms = cu.getConstructor(float.class).newInstance(0.0F);
-            Vector4f light4 = (Vector4f) cu.getMethod("getShadowLightPositionInWorldSpace").invoke(uniforms);
-            Vector3f light = new Vector3f(light4.x, light4.y, light4.z).normalize();
-            boolean isDay = (boolean) cu.getMethod("isDay").invoke(null);
-            float sunAngle = (float) cu.getMethod("getSunAngle", boolean.class).invoke(null, isDay);
-            String label = "bearing " + bearing + " t=" + time;
-            log(String.format("Iris %s: isDay=%s light=(%.3f, %.3f, %.3f)", label, isDay, light.x, light.y, light.z));
-
-            if (expectedBearing < 0) {
-                expect(light.y > 0.95F, label + ": noon at the zenith " + light);
-            } else {
-                double r = Math.toRadians(expectedBearing);
-                Vector3f horizontal = new Vector3f(light.x, 0, light.z).normalize();
-                Vector3f want = new Vector3f((float) Math.sin(r), 0, (float) -Math.cos(r));
-                expect(horizontal.distance(want) < 0.05F, label + ": light towards " + expectedBearing + "° " + horizontal);
-            }
-
-            Vector4f view4 = (Vector4f) cu.getMethod("getShadowLightPosition").invoke(uniforms);
-            Class<?> crs = Class.forName("net.irisshaders.iris.uniforms.CapturedRenderingState");
-            Object state = crs.getField("INSTANCE").get(null);
-            Matrix4f gbuffer = new Matrix4f((Matrix4fc) crs.getMethod("getGbufferModelView").invoke(state));
-            Vector3f viewToWorld = gbuffer.invert().transformDirection(new Vector3f(view4.x, view4.y, view4.z)).normalize();
-            expect(viewToWorld.distance(light) < EPS, label + ": view position = world position " + viewToWorld);
-
-            Class<?> sm = Class.forName("net.irisshaders.iris.shadows.ShadowMatrices");
-            PoseStack pose = new PoseStack();
-            sm.getMethod("createBaselineModelViewMatrix", PoseStack.class, float.class, float.class, float.class, float.class)
-                .invoke(null, pose, sunAngle / 360.0F, 0.0F, -100.05F, 156.0F);
-            Vector3f inShadowView = pose.last().pose().transformDirection(new Vector3f(light));
-            expect(Math.abs(inShadowView.x) < EPS && Math.abs(inShadowView.y) < EPS && inShadowView.z > 1 - EPS,
-                label + ": the shadow camera looks from the light " + inShadowView);
-        } catch (ReflectiveOperationException e) {
-            expect(false, "could not call Iris: " + e);
-        }
     }
 
     private void checkConfigScreen(ClientGameTestContext context, String variant) {
@@ -188,7 +126,7 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
         context.clickScreenButton("sun_orientation.letter.west");
         context.clickScreenButton("gui.done");
         context.waitTicks(60);
-        String saved = readConfigFile();
+        String saved = GameTestReport.readConfigFile();
         expect(SunOrientationConfig.get().sunriseBearing() == 270 && saved.contains("\"sunriseBearing\": 270"),
             "Done saves 270° to the file: " + saved.replaceAll("\\s+", " "));
 
@@ -294,44 +232,12 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
         context.waitTicks(8);
     }
 
-    private static String readConfigFile() {
-        try {
-            return Files.readString(SunOrientationConfig.path());
-        } catch (IOException e) {
-            return "(could not read: " + e + ")";
-        }
-    }
-
-    private void expectHook(Set<String> hooks, String hook, boolean required) {
-        if (hooks.contains(hook)) {
-            log("OK hook: " + hook);
-        } else if (required) {
-            expect(false, "hook did not run: " + hook);
-        } else {
-            log("(hook did not run, expected with shaders: " + hook + ")");
-        }
+    private void log(String line) {
+        report.log(line);
     }
 
     private void expect(boolean condition, String what) {
-        if (condition) {
-            log("OK " + what);
-        } else {
-            failures.add(what);
-            log("FAILED " + what);
-        }
-    }
-
-    private void log(String line) {
-        report.add(line);
-        SunOrientation.LOGGER.info("[SunOrientation-Test] {}", line);
-    }
-
-    private void writeReport() {
-        report.add(failures.isEmpty() ? "RESULT: OK" : "RESULT: " + failures.size() + " FAILURE(S)");
-        try {
-            Files.write(Path.of("sunorientation-results.txt"), report);
-        } catch (IOException e) {
-            SunOrientation.LOGGER.warn("[SunOrientation-Test] could not write the report", e);
-        }
+        report.expect(condition, what);
     }
 }
+//?}

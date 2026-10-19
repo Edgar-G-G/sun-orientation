@@ -1,0 +1,17 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "sun_orientation_gametest"
+version = "1.0.0"
+displayName = "Sun Orientation - in-game test"
+authors = "Edgar_G"
+description = "Development-only in-game test of Sun Orientation. Never shipped."
+
+[[dependencies.sun_orientation_gametest]]
+modId = "sun_orientation"
+type = "required"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "CLIENT"

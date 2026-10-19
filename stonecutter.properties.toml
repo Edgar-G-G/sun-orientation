@@ -12,11 +12,17 @@ deps.fabric_loader = "0.19.5"
 ["26.3"]
 # Minecraft releases the jar is marked compatible with in the stores
 mod.mc_releases = ["26.3"]
-# Iris versions whose bytecode was reviewed for the Iris mixins
-mod.tested_iris = ">=1.11.7 <1.12"
 
 [fabric."26.3"]
 # Minecraft range in fabric.mod.json
 mod.mc_compat = "~26.3"
 deps.fabric_api = "0.163.0+26.3"
 deps.modmenu = "21.0.0"
+
+[neoforge."26.3"]
+# Minecraft and NeoForge ranges in neoforge.mods.toml
+mod.mc_compat = "[26.3, 26.4)"
+mod.neoforge_compat = "[26.3.0.76,)"
+# Oldest Iris the mixins were reviewed for
+mod.iris_compat = "[1.11.7,)"
+deps.neoforge = "26.3.0.94"

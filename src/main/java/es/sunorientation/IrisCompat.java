@@ -3,13 +3,13 @@ package es.sunorientation;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-import net.fabricmc.loader.api.FabricLoader;
+import es.sunorientation.platform.Platform;
 
 /**
  * Optional access to Iris through reflection: the mod does not depend on Iris at compile time or runtime.
  */
 public final class IrisCompat {
-    private static final boolean LOADED = FabricLoader.getInstance().isModLoaded("iris");
+    private static final boolean LOADED = Platform.isModLoaded("iris");
 
     private IrisCompat() {
     }

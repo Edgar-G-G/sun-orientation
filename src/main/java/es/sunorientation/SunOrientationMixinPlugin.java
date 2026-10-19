@@ -5,10 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import es.sunorientation.config.SunOrientationConfig;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import net.fabricmc.loader.api.VersionParsingException;
-import net.fabricmc.loader.api.metadata.version.VersionPredicate;
+import es.sunorientation.platform.Platform;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -19,7 +16,8 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
  */
 public final class SunOrientationMixinPlugin implements IMixinConfigPlugin {
     /** Iris versions whose bytecode was reviewed for these mixins. */
-    private static final String TESTED_IRIS = ">=1.11.7 <1.12";
+    private static final String TESTED_IRIS_MIN = "1.11.7";
+    private static final String TESTED_IRIS_MAX = "1.12";
     private static final String IRIS_MIXIN_PACKAGE = "es.sunorientation.mixin.iris.";
 
     private boolean irisLoaded;
@@ -27,26 +25,20 @@ public final class SunOrientationMixinPlugin implements IMixinConfigPlugin {
     @Override
     public void onLoad(String mixinPackage) {
         SunOrientationConfig.load();
-        Optional<ModContainer> iris = FabricLoader.getInstance().getModContainer("iris");
+        Optional<String> iris = Platform.modVersion("iris");
         irisLoaded = iris.isPresent();
         if (iris.isEmpty()) {
             SunOrientation.LOGGER.info("[SunOrientation] Iris is not installed: only the vanilla sky is rotated.");
             return;
         }
 
-        String version = iris.get().getMetadata().getVersion().getFriendlyString();
-        boolean tested;
-        try {
-            tested = VersionPredicate.parse(TESTED_IRIS).test(iris.get().getMetadata().getVersion());
-        } catch (VersionParsingException e) {
-            tested = false;
-        }
-        if (tested) {
+        String version = iris.get();
+        if (Platform.isModVersionInRange("iris", TESTED_IRIS_MIN, TESTED_IRIS_MAX)) {
             SunOrientation.LOGGER.info("[SunOrientation] Iris {} detected: celestial uniforms and shadows are aligned.", version);
         } else {
             SunOrientation.LOGGER.warn("[SunOrientation] Iris {} is outside the reviewed range ({}). The Iris mixins are still"
                 + " attempted; if no 'Iris ...' hooks appear in the log, the shader sun and shadows will not follow the sky.",
-                version, TESTED_IRIS);
+                version, "[" + TESTED_IRIS_MIN + ", " + TESTED_IRIS_MAX + ")");
         }
     }
 
