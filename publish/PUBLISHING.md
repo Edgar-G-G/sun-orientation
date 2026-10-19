@@ -14,7 +14,7 @@ action and cannot be fully undone once the project is approved and indexed.
 ## 1. GitHub
 
 1. Create the empty public repository **`Edgar-G-G/sun-orientation`**, without README, license or `.gitignore`
-   (they are already here). The jar already links to it (`github_repo` in `gradle.properties`).
+   (they are already here). The jar already links to it (`mod.github_repo` in `stonecutter.properties.toml`).
 2. Push the code:
 
    ```bash

@@ -75,7 +75,7 @@ angle changes. It can be disabled in the screen or with `-Dsunorientation.shader
 **In-game tests** (Fabric client gametest, `src/gametest`, not shipped in the jar):
 
 ```bash
-./gradlew runClientGameTest -Psunorientation.variant=iris
+./gradlew :26.3-fabric:runClientGameTest -Psunorientation.variant=iris
 ```
 
 Variants: `vanilla`, `iris`, `nuit`, `iris-nuit`, plus `gallery` / `gallery-vanilla` for the mod page screenshots.

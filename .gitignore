@@ -9,3 +9,6 @@ out/
 testenv/
 release/
 logs/
+
+# Claude Code workflow notes (local)
+.ccw/
