@@ -33,8 +33,8 @@ class GeometryTest {
     /** SkyRenderer.renderSunMoonAndStars: rotateDegrees(YP, yaw) · rotate(XP, angle) · (0,100,0). */
     private static Vector3f vanillaSun(float yawDegrees, float sunAngleDegrees) {
         PoseStack pose = new PoseStack();
-        pose.rotateDegrees(Axis.YP, yawDegrees);
-        pose.rotate(Axis.XP, (float) Math.toRadians(sunAngleDegrees));
+        Poses.rotateDegrees(pose, Axis.YP, yawDegrees);
+        Poses.rotate(pose, Axis.XP, (float) Math.toRadians(sunAngleDegrees));
         return pose.last().pose().transformPosition(new Vector3f(0, 100, 0)).normalize();
     }
 
@@ -57,11 +57,11 @@ class GeometryTest {
         PoseStack pose = new PoseStack();
         pose.pushPose();
         if (modded) {
-            pose.rotateDegrees(Axis.YP, YAW);
+            Poses.rotateDegrees(pose, Axis.YP, YAW);
         }
-        pose.rotateDegrees(Axis.XP, 90.0F);
+        Poses.rotateDegrees(pose, Axis.XP, 90.0F);
         float angle = (float) Math.sin(Math.toRadians(sunAngleDegrees)) < 0.0F ? 180.0F : 0.0F;
-        pose.rotateDegrees(Axis.ZP, angle + 90.0F);
+        Poses.rotateDegrees(pose, Axis.ZP, angle + 90.0F);
         return pose.last().pose().transformPosition(new Vector3f(0, 100, 0)).normalize();
     }
 
@@ -114,11 +114,11 @@ class GeometryTest {
         target.last().normal().identity();
         target.last().pose().identity();
         float skyAngle = shadowAngle < 0.25F ? shadowAngle + 0.75F : shadowAngle - 0.25F;
-        target.rotateDegrees(Axis.XP, 90.0F);
-        target.rotateDegrees(Axis.ZP, skyAngle * -360.0F);
-        target.rotateDegrees(Axis.XP, sunPathRotation);
+        Poses.rotateDegrees(target, Axis.XP, 90.0F);
+        Poses.rotateDegrees(target, Axis.ZP, skyAngle * -360.0F);
+        Poses.rotateDegrees(target, Axis.XP, sunPathRotation);
         if (extraYaw != null) {
-            target.rotateDegrees(Axis.YP, extraYaw);
+            Poses.rotateDegrees(target, Axis.YP, extraYaw);
         }
         return new Matrix4f(target.last().pose());
     }

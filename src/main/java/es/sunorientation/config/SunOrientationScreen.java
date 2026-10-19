@@ -150,13 +150,20 @@ public class SunOrientationScreen extends Screen {
         if (patchChanged) {
             IrisCompat.reloadShaderPack();
         }
-        this.minecraft.gui.setScreen(parent);
+        returnToParent();
     }
 
     @Override
     public void onClose() {
         SunOrientationConfig.set(original.sunriseBearing(), original.adaptShaderPacks());
+        returnToParent();
+    }
+
+    private void returnToParent() {
+        //? if >=26.2 {
         this.minecraft.gui.setScreen(parent);
+        //?} else
+        //this.minecraft.setScreen(parent);
     }
 
     // ------------------------------------------------------------------ mouse on the compass

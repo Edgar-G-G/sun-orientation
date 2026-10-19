@@ -16,7 +16,10 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
  */
 public final class SunOrientationMixinPlugin implements IMixinConfigPlugin {
     /** Iris versions whose bytecode was reviewed for these mixins. */
+    //? if >=26.3 {
     private static final String TESTED_IRIS_MIN = "1.11.7";
+    //?} else
+    //private static final String TESTED_IRIS_MIN = "1.11.4";
     private static final String TESTED_IRIS_MAX = "1.12";
     private static final String IRIS_MIXIN_PACKAGE = "es.sunorientation.mixin.iris.";
 

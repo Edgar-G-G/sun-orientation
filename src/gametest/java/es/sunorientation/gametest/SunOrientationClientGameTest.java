@@ -67,7 +67,7 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
 
     private void checks(ClientGameTestContext context, String variant, boolean iris) {
         try (TestSingleplayerContext world = context.worldBuilder().create()) {
-            world.getConnection().waitForChunksRender();
+            waitForChunksRender(world, true, 1200);
             hideHud(context);
             world.getServer().runCommand("weather clear 100000");
             world.getServer().runCommand("execute as @p at @p run fill ~5 ~ ~-5 ~5 ~10 ~-5 minecraft:stone");
@@ -159,7 +159,7 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
         try (TestSingleplayerContext world = context.worldBuilder()
                 .adjustSettings(this::normalWorld)
                 .create()) {
-            world.getConnection().waitForChunksRender();
+            waitForChunksRender(world, true, 1200);
             hideHud(context);
             world.getServer().runCommand("weather clear 100000");
             world.getServer().runCommand("gamemode spectator @p");
@@ -171,7 +171,7 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
             world.getServer().runCommand("execute as @p at @p positioned over motion_blocking run tp @s ~ ~"
                 + System.getProperty("sunorientation.height", "4") + " ~");
             context.waitTicks(iris ? 900 : 400);
-            world.getConnection().waitForChunksRender(false, 2400);
+            waitForChunksRender(world, false, 2400);
             context.runOnClient(mc -> SunOrientationConfig.set(180, true));
             if (iris) {
                 context.runOnClient(mc -> IrisCompat.reloadShaderPack());
@@ -222,6 +222,14 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
 
     private static void hideHud(ClientGameTestContext context) {
         context.runOnClient(GameTestCompat::hideHud);
+    }
+
+    // Fabric API for 26.1 has the chunk wait on the client level; later versions on the connection.
+    private static void waitForChunksRender(TestSingleplayerContext world, boolean waitForRequired, int timeoutTicks) {
+        //? if >=26.2 {
+        world.getConnection().waitForChunksRender(waitForRequired, timeoutTicks);
+        //?} else
+        //world.getClientLevel().waitForChunksRender(waitForRequired, timeoutTicks);
     }
 
     private static void view(ClientGameTestContext context, TestSingleplayerContext world, int yaw, int pitch) {

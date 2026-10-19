@@ -32,8 +32,8 @@ class OrientationsTest {
 
     private static Vector3f sky(float yaw, float angle) {
         PoseStack pose = new PoseStack();
-        pose.rotateDegrees(Axis.YP, -90.0F + yaw);
-        pose.rotate(Axis.XP, (float) Math.toRadians(angle));
+        Poses.rotateDegrees(pose, Axis.YP, -90.0F + yaw);
+        Poses.rotate(pose, Axis.XP, (float) Math.toRadians(angle));
         return pose.last().pose().transformPosition(new Vector3f(0, 100, 0)).normalize();
     }
 
@@ -52,11 +52,11 @@ class OrientationsTest {
         float shadowAngle = c / 360.0F;
         float skyAngle = shadowAngle < 0.25F ? shadowAngle + 0.75F : shadowAngle - 0.25F;
         PoseStack t = new PoseStack();
-        t.rotateDegrees(Axis.XP, 90.0F);
-        t.rotateDegrees(Axis.ZP, skyAngle * -360.0F);
-        t.rotateDegrees(Axis.XP, sunPath);
+        Poses.rotateDegrees(t, Axis.XP, 90.0F);
+        Poses.rotateDegrees(t, Axis.ZP, skyAngle * -360.0F);
+        Poses.rotateDegrees(t, Axis.XP, sunPath);
         if (yaw != 0.0F) {
-            t.rotateDegrees(Axis.YP, -yaw); // IrisShadowMatricesMixin
+            Poses.rotateDegrees(t, Axis.YP, -yaw); // IrisShadowMatricesMixin
         }
         return new Matrix4f(t.last().pose());
     }
@@ -79,9 +79,9 @@ class OrientationsTest {
 
         // Sunrise glow: Ry(yaw) · Rx(90) · Rz(270) · (0,100,0).
         PoseStack fan = new PoseStack();
-        fan.rotateDegrees(Axis.YP, yaw);
-        fan.rotateDegrees(Axis.XP, 90.0F);
-        fan.rotateDegrees(Axis.ZP, 270.0F);
+        Poses.rotateDegrees(fan, Axis.YP, yaw);
+        Poses.rotateDegrees(fan, Axis.XP, 90.0F);
+        Poses.rotateDegrees(fan, Axis.ZP, 270.0F);
         assertDir(bearing(b), fan.last().pose().transformPosition(new Vector3f(0, 100, 0)).normalize(), "glow " + b);
 
         // Fog: (sunX, 0, 0) rotated.

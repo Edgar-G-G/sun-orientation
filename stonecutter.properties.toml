@@ -28,3 +28,32 @@ mod.neoforge_compat = "[26.3.0.76,)"
 # Oldest Iris the mixins were reviewed for
 mod.iris_compat = "[1.11.7,)"
 deps.neoforge = "26.3.0.94"
+
+["26.2"]
+mod.mc_releases = ["26.2"]
+
+[fabric."26.2"]
+mod.mc_compat = "~26.2"
+deps.fabric_api = "0.161.0+26.2"
+deps.modmenu = "20.0.3"
+
+[neoforge."26.2"]
+mod.mc_compat = "[26.2, 26.3)"
+mod.neoforge_compat = "[26.2.0.57,)"
+mod.iris_compat = "[1.11.4,)"
+deps.neoforge = "26.2.0.93"
+
+["26.1.2"]
+# Only 26.1.2 is built and tested (26.1 and 26.1.1 were replaced by it in April 2026)
+mod.mc_releases = ["26.1.2"]
+
+[fabric."26.1.2"]
+mod.mc_compat = "~26.1.2"
+deps.fabric_api = "0.155.3+26.1.2"
+deps.modmenu = "18.0.2"
+
+[neoforge."26.1.2"]
+mod.mc_compat = "[26.1.2, 26.2)"
+mod.neoforge_compat = "[26.1.2.71,)"
+mod.iris_compat = "[1.11.4,)"
+deps.neoforge = "26.1.2.122"
