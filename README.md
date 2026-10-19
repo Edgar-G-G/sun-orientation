@@ -58,10 +58,9 @@ When you press **Done** with a shader pack active, the pack is reloaded so its l
 
 | | Status |
 | --- | --- |
-| Vanilla sky (no shaders) | Tested in game on every Minecraft version and loader |
+| Vanilla sky (no shaders) | Tested in game on every Minecraft version and loader, including the NeoForge mods list → Config button |
 | Iris 1.11.7 (26.3) | Tested in game on Fabric, Quilt and NeoForge: uniforms, shadow matrix and culling checked numerically |
-| Iris 1.11.4 (26.1.2) | Tested in game on Fabric and NeoForge, same checks |
-| Iris 1.11.4 (26.2) | Not tested in game: Iris itself did not start on 26.2 in the test environment. The Iris code Sun Orientation adjusts is the same as on 26.1.2. |
+| Iris 1.11.4 (26.2 and 26.1.2) | Tested in game on Fabric and NeoForge, same checks |
 | Complementary Reimagined r5.9.3 | Tested in game (default settings): sun, shadows, lighting |
 | Other shader packs | Sun position and shadows follow if the pack uses Iris' uniforms. Packs that compute the sun in GLSL with a different formula keep east–west lighting. |
 | Nuit | Compatible. Custom skyboxes from Nuit resource packs draw their own sun and are not rotated. |

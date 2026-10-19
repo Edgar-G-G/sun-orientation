@@ -2,7 +2,8 @@
 
 ## Unreleased — Minecraft 26.1.2, 26.2 and 26.3
 
-- NeoForge builds for Minecraft 26.3, 26.2 and 26.1.2; the configuration screen opens from the NeoForge mods list.
+- NeoForge builds for Minecraft 26.3, 26.2 and 26.1.2; the configuration screen opens from the NeoForge mods list
+  (Mods → Sun Orientation → Config).
 - Fabric builds for Minecraft 26.2 and 26.1.2 (in addition to 26.3).
 - Quilt: the Fabric jar works on Quilt Loader 0.31.
 - Iris 1.11.4 is supported on 26.2 and 26.1.2 (1.11.7 on 26.3).

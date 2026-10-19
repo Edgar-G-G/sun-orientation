@@ -23,7 +23,8 @@ val gametest: SourceSet = sourceSets.create("gametest") {
 val gameTestRunDir = file("build/run/clientGameTest")
 
 neoForge {
-    version = sc.properties.get<String>("deps.neoforge")
+    // -Psunorientation.neoforge=<version>: test against another NeoForge build (the jar's range does not change)
+    version = providers.gradleProperty("sunorientation.neoforge").orElse(sc.properties.get<String>("deps.neoforge")).get()
 
     mods {
         register("sun_orientation") {
@@ -46,9 +47,10 @@ neoForge {
             loadedMods.set(listOf(mods["sun_orientation"], mods["sun_orientation_gametest"]))
             systemProperty("sunorientation.variant",
                 providers.gradleProperty("sunorientation.variant").orElse("vanilla").get())
-            // NeoForge validates every draw strictly in development only; Iris 1.11.7 fails that check
-            // (CenterDepthSampler), which never happens in a normal game.
+            // NeoForge validates every draw strictly in development only and Iris fails that check (26.3:
+            // CenterDepthSampler), which never happens in a normal game. The switch was renamed in 26.3.
             systemProperty("neoforge.disableBlaze3DValidation", "true")
+            systemProperty("neoforge.disableGlValidation", "true")
         }
     }
 }

@@ -48,5 +48,11 @@ tasks.register("prepareGameTest") {
 
 tasks.matching { it.name == "runClientGameTest" }.configureEach {
     dependsOn("prepareGameTest")
-    (this as JavaExec).jvmArgs("-Dmixin.debug.countInjections=true", "-Dsunorientation.variant=${gameTestVariant.get()}")
+    val variant = gameTestVariant.get()
+    (this as JavaExec).jvmArgs("-Dsunorientation.variant=$variant")
+    // Mixin's injection count check also applies to other mods: Iris 1.11.4 (26.2) uses an injector group whose
+    // unused member fails it, which stops the game. Our hooks are checked by the test itself.
+    if (!variant.contains("iris") && variant != "gallery") {
+        jvmArgs("-Dmixin.debug.countInjections=true")
+    }
 }

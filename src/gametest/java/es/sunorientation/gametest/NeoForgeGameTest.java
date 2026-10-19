@@ -13,7 +13,11 @@ import es.sunorientation.config.SunOrientationScreen;
 import es.sunorientation.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.AbstractSelectionList;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
@@ -111,6 +115,8 @@ public final class NeoForgeGameTest {
         report.log("loader=" + Platform.loader() + " variant=" + variant + " iris=" + iris
             + " nuit=" + Platform.isModLoaded("nuit"));
 
+        modsList();
+
         // Vanilla flat test world: creative, no time or weather change, no mobs.
         then(0, () -> CreateWorldScreen.testWorld(mc, () -> setScreen(new TitleScreen())));
         thenWhen(() -> screen() instanceof CreateWorldScreen, () -> invoke(screen(), "onCreate"));
@@ -166,6 +172,86 @@ public final class NeoForgeGameTest {
         then(0, this::finish);
     }
 
+    // As a player would: title screen → Mods → search "Sun Orientation" → select it → Config.
+    private void modsList() {
+        then(0, () -> setScreen(new TitleScreen()));
+        then(5, () -> press("fml.menu.mods"));
+        then(10, () -> {
+            screenshot(variant + "-modlist");
+            EditBox search = find(EditBox.class, box -> true);
+            if (search == null) {
+                report.expect(false, "mods list search box found");
+                return;
+            }
+            search.setValue("Sun Orientation");
+        });
+        then(5, () -> {
+            @SuppressWarnings("rawtypes")
+            AbstractSelectionList list = find(AbstractSelectionList.class, l -> true);
+            java.util.List<?> entries = list == null ? java.util.List.of() : (java.util.List<?>) list.children();
+            report.log("mods list entries after the search: " + entries.size());
+            // The entry text is drawn, not a widget: match its narration, or take the only result left.
+            Object entry = entries.stream().<Object>map(e -> e)
+                .filter(e -> narration(e).contains("Sun Orientation") && !narration(e).contains("test"))
+                .findFirst().orElse(entries.size() == 1 ? entries.get(0) : null);
+            if (entry == null) {
+                report.expect(false, "Sun Orientation found in the mods list");
+                return;
+            }
+            selectEntry(list, entry);
+        });
+        then(5, () -> {
+            screenshot(variant + "-modlist-selected");
+            press("neoforge.screen.mods.button.config", "fml.menu.mods.config");
+        });
+        then(5, () -> {
+            report.expect(screen() instanceof SunOrientationScreen, "Mods list → Config opens the Sun Orientation screen"
+                + " (" + (screen() == null ? "no screen" : screen().getClass().getSimpleName()) + ")");
+            screenshot(variant + "-config-from-modlist");
+            if (screen() instanceof SunOrientationScreen) {
+                press("gui.cancel");
+            }
+        });
+        then(5, () -> report.expect(screen() != null && !(screen() instanceof SunOrientationScreen)
+            && !(screen() instanceof TitleScreen), "Cancel returns to the mods list"));
+        then(0, () -> setScreen(new TitleScreen()));
+    }
+
+    // Selects a list entry (what a click on it does).
+    // NeoForge 26.1 keeps the selection in the screen (ModListScreen.setSelected), 26.2+ in the list; a click calls
+    // the screen's method when there is one. AbstractSelectionList.Entry is protected, hence reflection.
+    @SuppressWarnings("rawtypes")
+    private static void selectEntry(AbstractSelectionList list, Object entry) {
+        if (!invokeSetSelected(screen(), entry) && !invokeSetSelected(list, entry)) {
+            throw new IllegalStateException("no setSelected for " + entry.getClass().getName());
+        }
+    }
+
+    private static boolean invokeSetSelected(Object target, Object entry) {
+        for (Class<?> c = target.getClass(); c != null; c = c.getSuperclass()) {
+            for (var m : c.getDeclaredMethods()) {
+                if (m.getName().equals("setSelected") && m.getParameterCount() == 1
+                        && m.getParameterTypes()[0].isInstance(entry)) {
+                    try {
+                        m.setAccessible(true);
+                        m.invoke(target, entry);
+                        return true;
+                    } catch (ReflectiveOperationException e) {
+                        throw new IllegalStateException("could not select the entry", e);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static String narration(Object entry) {
+        if (entry instanceof net.minecraft.client.gui.components.ObjectSelectionList.Entry<?> e) {
+            return e.getNarration().getString();
+        }
+        return String.valueOf(entry);
+    }
+
     private void configScreen(Minecraft mc) {
         then(0, () -> {
             SunOrientationConfig.set(180, true);
@@ -218,18 +304,38 @@ public final class NeoForgeGameTest {
         Screenshot.grab(mc.gameDirectory, name + ".png", mainRenderTarget(mc), 1, message -> { });
     }
 
-    // Presses the button of the current screen whose text is that translation key.
-    private void press(String key) {
-        Screen screen = screen();
-        Button button = screen == null ? null : screen.children().stream()
-            .filter(Button.class::isInstance).map(Button.class::cast)
-            .filter(b -> b.getMessage().getContents() instanceof TranslatableContents t && t.getKey().equals(key))
-            .findFirst().orElse(null);
+    // Presses the button of the current screen (also inside panels and lists) whose text is one of these
+    // translation keys.
+    private void press(String... keys) {
+        java.util.Set<String> wanted = java.util.Set.of(keys);
+        AbstractButton button = find(AbstractButton.class,
+            b -> b.getMessage().getContents() instanceof TranslatableContents t && wanted.contains(t.getKey()));
         if (button == null) {
-            report.expect(false, "button not found: " + key);
+            report.expect(false, "button not found: " + String.join(" / ", keys));
             return;
         }
         button.onPress(new KeyEvent(0, 0, 0));
+    }
+
+    private static <T> T find(Class<T> type, java.util.function.Predicate<T> matches) {
+        Screen screen = screen();
+        return screen == null ? null : find(screen.children(), type, matches);
+    }
+
+    private static <T> T find(java.util.List<? extends GuiEventListener> children, Class<T> type,
+                              java.util.function.Predicate<T> matches) {
+        for (GuiEventListener child : children) {
+            if (type.isInstance(child) && matches.test(type.cast(child))) {
+                return type.cast(child);
+            }
+            if (child instanceof ContainerEventHandler container) {
+                T found = find(container.children(), type, matches);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     private static it.unimi.dsi.fastutil.booleans.BooleanConsumer confirmScreenCallback(

@@ -115,8 +115,16 @@ Quilt Loader instead.
 Variants: `vanilla`, `iris`, `nuit`, `iris-nuit`, plus `gallery` / `gallery-vanilla` for the mod page screenshots.
 Third-party jars are read from `../_shared/testenv/<node>/` (e.g. `26.2-neoforge/`), falling back to
 `../_shared/testenv/` itself (`mods-iris/`, `mods-nuit/`, `mods-extra/`, `shaderpacks/`), or another folder with
-`-Ptestenv_dir=…`. NeoForge validates every draw strictly in development only and Iris 1.11.7 fails that check, so the
-NeoForge test run sets `-Dneoforge.disableBlaze3DValidation=true` (a normal game never validates). The test creates a flat world, sets bearings 180°, 0°, 270° and 45°, and at
+`-Ptestenv_dir=…`. Two settings only matter in development:
+
+- NeoForge validates every draw strictly in development and Iris fails that check, so the NeoForge test run sets
+  `-Dneoforge.disableBlaze3DValidation=true` (26.3) and `-Dneoforge.disableGlValidation=true` (26.2, 26.1). A normal
+  game never validates.
+- `-Dmixin.debug.countInjections=true` is only used without Iris: it applies to every mod, and Iris 1.11.4 (26.2) has
+  an injector group whose unused member fails the count and stops the game.
+
+`-Psunorientation.neoforge=<version>` and `-Psunorientation.fabricLoader=<version>` run the test on another loader build
+(development only; the second also lowers the jar's `fabricloader` range, so never publish a jar built with it). The test creates a flat world, sets bearings 180°, 0°, 270° and 45°, and at
 several times of day calls the real Iris code through reflection to check:
 
 - `shadowLightPosition` in world space points at the configured bearing at sunrise and the opposite one at sunset;
@@ -124,24 +132,24 @@ several times of day calls the real Iris code through reflection to check:
 - `ShadowMatrices.createBaselineModelViewMatrix` maps the light to (0, 0, 1).
 
 It also clicks through the configuration screen (N preset, Cancel, West + Done saves 270°), checks the Mod Menu
-entrypoint (Fabric) or the mods-list screen factory (NeoForge), switches the game to Spanish and takes screenshots. The report is written to
+entrypoint (Fabric) or, on NeoForge, goes title screen → Mods → search "Sun Orientation" → select → Config and checks
+that this screen opens and Cancel returns to the list, switches the game to Spanish and takes screenshots. The report is written to
 `versions/<node>/build/run/clientGameTest/sunorientation-results.txt`.
 
-Last results (Complementary r5.9.3 with default settings; `iris` = 6 hooks and 58 checks):
+Last results (Complementary r5.9.3 with default settings; `iris` = 6 hooks and 58 checks, plus 2 for the mods list on
+NeoForge):
 
 | Node | Loader | Iris / Sodium | vanilla | iris |
 | --- | --- | --- | --- | --- |
 | 26.3-fabric | Fabric Loader 0.19.5 | 1.11.7 / 0.9.2 | OK | OK |
 | 26.3-fabric | Quilt Loader 0.31.0-beta.4 | 1.11.7 / 0.9.2 | OK | OK |
 | 26.3-neoforge | NeoForge 26.3.0.94 | 1.11.7 / 0.9.3-beta.1 | OK | OK |
-| 26.2-fabric | Fabric Loader 0.19.5 | 1.11.4 / 0.9.2 | OK | not run (1) |
-| 26.2-neoforge | NeoForge 26.2.0.93 | 1.11.4 / 0.9.2 | OK | not run (1) |
+| 26.2-fabric | Fabric Loader 0.19.5 | 1.11.4 / 0.9.2 | OK | OK |
+| 26.2-neoforge | NeoForge 26.2.0.93 | 1.11.4 / 0.9.2 | OK | OK |
 | 26.1.2-fabric | Fabric Loader 0.19.5 | 1.11.4 / 0.9.2 | OK | OK |
 | 26.1.2-neoforge | NeoForge 26.1.2.122 | 1.11.4 / 0.9.2 | OK | OK |
 
-(1) Iris 1.11.4 for 26.2 stops at startup in the test environment on both loaders, before Sun Orientation runs
-(`MixinLevelRenderer`: neither variant of its `render` → `addMainPass` injection group matches). Sodium 0.9.2 for NeoForge
-26.3 also fails with NeoForge 26.3.0.94, hence 0.9.3-beta.1 there. Example screenshots are in
+Sodium 0.9.2 for NeoForge 26.3 fails with NeoForge 26.3.0.94 (one of its own mixins), hence 0.9.3-beta.1 there. Example screenshots are in
 [`screenshots/`](screenshots/) (from the 0.1 test build, south orientation).
 
 ## Known limitations

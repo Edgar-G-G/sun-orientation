@@ -15,6 +15,10 @@ base {
 
 // -Psunorientation.quilt: runs the in-game test on Quilt Loader instead of Fabric Loader (the jar is the same).
 val onQuilt = providers.gradleProperty("sunorientation.quilt").isPresent
+// -Psunorientation.fabricLoader=<version>: test on another Fabric Loader. Development only: it also lowers the
+// fabricloader range of that build, so never publish a jar built with it.
+val fabricLoader = providers.gradleProperty("sunorientation.fabricLoader")
+    .orElse(sc.properties.get<String>("deps.fabric_loader")).get()
 
 repositories {
     // Mod Menu (only to compile the integration; not a dependency of the mod)
@@ -32,7 +36,7 @@ dependencies {
         implementation("org.quiltmc:quilt-json5:1.0.4+final")
         implementation("org.quiltmc:quilt-config:1.3.3")
     } else {
-        implementation("net.fabricmc:fabric-loader:${sc.properties.get<String>("deps.fabric_loader")}")
+        implementation("net.fabricmc:fabric-loader:$fabricLoader")
     }
     compileOnly("com.terraformersmc:modmenu:${sc.properties.get<String>("deps.modmenu")}")
     // No Fabric API or Iris as required dependencies.
@@ -100,7 +104,7 @@ tasks.processResources {
         "version" to modVersion,
         "contact" to groovy.json.JsonOutput.toJson(contact),
         "minecraft" to sc.properties.get<String>("mod.mc_compat"),
-        "fabricloader" to sc.properties.get<String>("deps.fabric_loader"),
+        "fabricloader" to fabricLoader,
     )
     inputs.properties(props)
     filesMatching("fabric.mod.json") {
