@@ -85,7 +85,7 @@ https://authors.curseforge.com → **Create Project** → Minecraft → **Mods**
 
 CurseForge also reviews new projects and files before they are public.
 
-## Version 1.1.0 (multi-loader) — prepared, not uploaded
+## Version 1.1.0 (multi-loader)
 
 Upload only after the 1.0.0 review is finished and with explicit approval. Same six files on both platforms, from
 `../release/` (built by `gradlew build`). Changelog: section 1.1.0 of `CHANGELOG.md`. Before uploading, update the
@@ -116,4 +116,11 @@ it runs the same Fabric jar.
 | --- | --- | --- |
 | GitHub | https://github.com/Edgar-G-G/sun-orientation | public |
 | Modrinth | https://modrinth.com/mod/sun-orientation (id `chwkC3Ka`) | submitted for review, "Contains AI-generated content" declared |
-| CurseForge | project id `1753365` | file 1.0.0 uploaded, waiting for moderation (auto-publish on approval, 3rd-party distribution allowed) |
+| CurseForge | project id `1753365` | 1.0.0 approved |
+
+## Status (1.1.0)
+
+| Platform | State on 2026-10-19 |
+| --- | --- |
+| CurseForge | description updated; 6 files uploaded (ids 9260167 26.3 Fabric/Quilt, 9260174 26.3 NeoForge, 9260181 26.2 NeoForge, 9260184 26.1.2 NeoForge, 9260194 26.2 Fabric/Quilt, 9260195 26.1.2 Fabric/Quilt); the first three approved, the rest under review |
+| Modrinth | not uploaded: the project (and 1.0.0) is still in review |
