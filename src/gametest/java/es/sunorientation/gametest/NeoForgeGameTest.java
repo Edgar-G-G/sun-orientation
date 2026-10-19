@@ -27,6 +27,8 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 
+import static es.sunorientation.gametest.GameTestCompat.*;
+
 // In-game test for NeoForge (development only; NeoForge has no client gametest like Fabric's).
 // Run with: gradlew :<version>-neoforge:runClientGameTest -Psunorientation.variant=vanilla|iris
 // It creates the vanilla flat test world, runs the same checks as the Fabric test (GameTestReport), takes
@@ -119,9 +121,7 @@ public final class NeoForgeGameTest {
             }
             return mc.level != null && mc.player != null && screen() == null;
         }, () -> {
-            if (!hud(mc).isHidden()) {
-                hud(mc).toggle();
-            }
+            hideHud(mc);
             command("weather clear 100000");
             command("execute as @p at @p run fill ~5 ~ ~-5 ~5 ~10 ~-5 minecraft:stone");
         });
@@ -230,37 +230,6 @@ public final class NeoForgeGameTest {
             return;
         }
         button.onPress(new KeyEvent(0, 0, 0));
-    }
-
-    // Minecraft 26.2 moved the screen and the HUD from Minecraft to Gui, and 26.2 the main render target to
-    // GameRenderer.
-    private static Screen screen() {
-        //? if >=26.2 {
-        return Minecraft.getInstance().gui.screen();
-        //?} else
-        //return Minecraft.getInstance().screen;
-    }
-
-    private static void setScreen(Screen screen) {
-        //? if >=26.2 {
-        Minecraft.getInstance().gui.setScreen(screen);
-        //?} else
-        //Minecraft.getInstance().setScreen(screen);
-    }
-
-    private static net.minecraft.client.gui.Hud hud(Minecraft mc) {
-        return mc.gui.hud;
-    }
-
-    private static boolean overlayGone(Minecraft mc) {
-        return mc.gui.overlay() == null;
-    }
-
-    private static com.mojang.blaze3d.pipeline.RenderTarget mainRenderTarget(Minecraft mc) {
-        //? if >=26.2 {
-        return mc.gameRenderer.mainRenderTarget();
-        //?} else
-        //return mc.getMainRenderTarget();
     }
 
     private static it.unimi.dsi.fastutil.booleans.BooleanConsumer confirmScreenCallback(

@@ -44,7 +44,8 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
     public void runTest(ClientGameTestContext context) {
         String variant = System.getProperty("sunorientation.variant", "vanilla");
         boolean iris = FabricLoader.getInstance().isModLoaded("iris");
-        log("variant=" + variant + " iris=" + iris + " nuit=" + FabricLoader.getInstance().isModLoaded("nuit")
+        String loader = FabricLoader.getInstance().isModLoaded("quilt_loader") ? "Quilt" : "Fabric";
+        log("loader=" + loader + " variant=" + variant + " iris=" + iris + " nuit=" + FabricLoader.getInstance().isModLoaded("nuit")
             + " modmenu=" + FabricLoader.getInstance().isModLoaded("modmenu"));
         try {
             if (variant.startsWith("gallery")) {
@@ -136,7 +137,7 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
             mc.options.languageCode = "es_es";
             return mc.reloadResourcePacks();
         });
-        context.waitFor(mc -> reload.isDone() && mc.gui.overlay() == null, 1200);
+        context.waitFor(mc -> reload.isDone() && GameTestCompat.overlayGone(mc), 1200);
         context.setScreen(() -> new SunOrientationScreen(null));
         context.waitTicks(5);
         context.takeScreenshot(variant + "-config-es");
@@ -220,11 +221,7 @@ public class SunOrientationClientGameTest implements FabricClientGameTest {
     // ------------------------------------------------------------------ utilities
 
     private static void hideHud(ClientGameTestContext context) {
-        context.runOnClient(mc -> {
-            if (!mc.gui.hud.isHidden()) {
-                mc.gui.hud.toggle();
-            }
-        });
+        context.runOnClient(GameTestCompat::hideHud);
     }
 
     private static void view(ClientGameTestContext context, TestSingleplayerContext world, int yaw, int pitch) {

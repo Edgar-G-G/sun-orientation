@@ -8,6 +8,8 @@ mod.github_repo = "Edgar-G-G/sun-orientation"
 
 deps.junit = "5.13.4"
 deps.fabric_loader = "0.19.5"
+# Only to check the Fabric jar on Quilt (-Psunorientation.quilt)
+deps.quilt_loader = "0.31.0-beta.4"
 
 ["26.3"]
 # Minecraft releases the jar is marked compatible with in the stores
