@@ -38,7 +38,7 @@
 | Java | 25 |
 | Optional | [Iris](https://modrinth.com/mod/iris) (shaders): 1.11.7+ on 26.3, 1.11.4+ on 26.2 and 26.1.2 · [Mod Menu](https://modrinth.com/mod/modmenu) (config screen on Fabric/Quilt) |
 
-Jar names: `sun-orientation-<version>+<minecraft>-<loader>.jar`, e.g. `sun-orientation-1.0.0+26.3-neoforge.jar`.
+Jar names: `sun-orientation-<version>+<minecraft>-<loader>.jar`, e.g. `sun-orientation-1.1.0+26.3-neoforge.jar`.
 
 ## Configuration
 

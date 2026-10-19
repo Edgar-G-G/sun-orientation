@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — Minecraft 26.1.2, 26.2 and 26.3
+## 1.1.0 — Minecraft 26.1.2, 26.2 and 26.3
 
 - NeoForge builds for Minecraft 26.3, 26.2 and 26.1.2; the configuration screen opens from the NeoForge mods list
   (Mods → Sun Orientation → Config).

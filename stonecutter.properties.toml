@@ -1,6 +1,6 @@
 # Mod properties shared by every build node, then per Minecraft version and per loader + version.
 mod.id = "sun_orientation"
-mod.version = "1.0.0"
+mod.version = "1.1.0"
 mod.group = "es.sunorientation"
 mod.archives_name = "sun-orientation"
 # GitHub repository (user/repo) for the links in the mod metadata; empty = no links.

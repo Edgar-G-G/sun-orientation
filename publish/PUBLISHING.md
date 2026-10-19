@@ -85,6 +85,25 @@ https://authors.curseforge.com → **Create Project** → Minecraft → **Mods**
 
 CurseForge also reviews new projects and files before they are public.
 
+## Version 1.1.0 (multi-loader) — prepared, not uploaded
+
+Upload only after the 1.0.0 review is finished and with explicit approval. Same six files on both platforms, from
+`../release/` (built by `gradlew build`). Changelog: section 1.1.0 of `CHANGELOG.md`. Before uploading, update the
+project descriptions (`modrinth/description.md`, `curseforge/description.md`, already rewritten for 1.1.0).
+
+| File | Version number (Modrinth) / display name (CurseForge) | Loaders | Game version |
+| --- | --- | --- | --- |
+| `sun-orientation-1.1.0+26.3-fabric.jar` | `1.1.0+26.3-fabric` / Sun Orientation 1.1.0 (26.3, Fabric/Quilt) | Fabric, Quilt | 26.3 |
+| `sun-orientation-1.1.0+26.3-neoforge.jar` | `1.1.0+26.3-neoforge` / Sun Orientation 1.1.0 (26.3, NeoForge) | NeoForge | 26.3 |
+| `sun-orientation-1.1.0+26.2-fabric.jar` | `1.1.0+26.2-fabric` / Sun Orientation 1.1.0 (26.2, Fabric/Quilt) | Fabric, Quilt | 26.2 |
+| `sun-orientation-1.1.0+26.2-neoforge.jar` | `1.1.0+26.2-neoforge` / Sun Orientation 1.1.0 (26.2, NeoForge) | NeoForge | 26.2 |
+| `sun-orientation-1.1.0+26.1.2-fabric.jar` | `1.1.0+26.1.2-fabric` / Sun Orientation 1.1.0 (26.1.2, Fabric/Quilt) | Fabric, Quilt | 26.1.2 |
+| `sun-orientation-1.1.0+26.1.2-neoforge.jar` | `1.1.0+26.1.2-neoforge` / Sun Orientation 1.1.0 (26.1.2, NeoForge) | NeoForge | 26.1.2 |
+
+Other fields as in 1.0.0 (Release, Java 25, client). Dependencies: Iris **optional** on every file; Mod Menu
+**optional** on the Fabric files only. Quilt was tested in game on 26.3 only; on 26.2 and 26.1.2 it is declared because
+it runs the same Fabric jar.
+
 ## Gallery (both platforms)
 
 | File | Title | Description |
