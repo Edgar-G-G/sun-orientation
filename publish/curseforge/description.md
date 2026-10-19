@@ -35,4 +35,4 @@ In vanilla Minecraft the sun always rises in the east and sets in the west. Sun 
 | Nuit | ✔️ Compatible. Custom Nuit skyboxes draw their own sun and are not rotated. |
 | Distant Horizons | ❔ Not tested |
 
-Something not following the setting? `logs/latest.log` lists every part that is active (`[SunOrientation] hook active: …`). Please open an issue with that log.
+Something not following the setting? `logs/latest.log` lists every part that is active (`[SunOrientation] hook active: …`). Please open an issue on [GitHub](https://github.com/Edgar-G-G/sun-orientation/issues) with that log.

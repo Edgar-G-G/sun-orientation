@@ -90,3 +90,11 @@ CurseForge also reviews new projects and files before they are public.
 | File | Title | Description |
 | --- | --- | --- |
 | `config-screen.png` | Compass screen | Pick any sunrise direction; the sky updates live behind the menu. Use it as the **featured** image. |
+
+## Status (1.0.0)
+
+| Platform | Project | State on 2026-10-19 |
+| --- | --- | --- |
+| GitHub | https://github.com/Edgar-G-G/sun-orientation | public |
+| Modrinth | https://modrinth.com/mod/sun-orientation (id `chwkC3Ka`) | submitted for review, "Contains AI-generated content" declared |
+| CurseForge | project id `1753365` | file 1.0.0 uploaded, waiting for moderation (auto-publish on approval, 3rd-party distribution allowed) |
